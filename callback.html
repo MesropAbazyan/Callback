@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Callback</title>
+</head>
+
+<body>
+    <a href="https://www.youtube.com/watch?v=36T9wXJKfuw&list=PLM7wFzahDYnF2VdVjew48HKA7E_pnItDi&index=7&t=8s">
+        Callback функции в JavaScript, синхронные и асинхронные callback, callback hell
+    </a><br/><br/>
+    <div class="out-11"></div>
+    <div class="out-12"></div>
+    <div class="out-2"></div>
+    <div class="out-3"></div><br/>
+    <input class="i-4" />
+    <button class="b-4">Button 4</button><br/>
+    <input class="i-5" />
+    <button class="b-5">Button 5</button>
+</body>
+</html>
+
+<script>
+
+const arr1 = [7, 4, 5, 3, 8];
+const out11 = document.querySelector('.out-11');
+const out12 = document.querySelector('.out-12');
+const out2 = document.querySelector('.out-2');
+const out3 = document.querySelector('.out-3');
+
+function f1() {
+    arr1[3] = arr1[3] * 2;
+    // out1.innerHTML = arr1;
+    showArr1(arr1, out11);
+}
+
+function showArr1(arr, block) {
+    let out = '';
+    for (let i = 0; i < arr.length; i++) {
+        out += arr[i] + '_';
+    }
+    block.innerHTML = out;
+}
+
+f1();
+
+
+
+
+// "callback" - функция, которая передается в другую функцию
+// в качестве аргумента и затем вызывается по завершению
+// какого-либо действия
+
+function f2(arr, myFunc, block) {
+    arr[3] = arr[3] * 2;
+    myFunc(arr, block);
+}
+
+function showArr2(arr, block) {     // callback function
+    let out = '';
+    for (let i = 0; i < arr.length; i++) {
+        out += arr[i] + '_';
+    }
+    block.innerHTML = out;
+}
+
+function showArr3(arr, block) {     // callback function
+    let out = '';
+    for (let i = 0; i < arr.length; i++) {
+        out += arr[i] + '*';
+    }
+    block.innerHTML = out;
+}
+
+f2(arr1, showArr2, out12);
+f2(arr1, showArr3, out2);
+
+
+
+
+// пример коллбека
+
+            // function square(item) {
+            //     return item ** 2;
+            // }
+            // const arr2 = arr1.map(square);
+
+const arr2 = arr1.map(item => item ** 2);
+console.log(arr2);
+showArr1(arr2, out3);
+
+
+
+
+// пример с "input"
+document.querySelector('.b-4')
+        .addEventListener('click', getUsername1);
+
+function getUsername1 (str) {
+    const username = document.querySelector('.i-4').value;
+    console.log(fixUsername(username));
+}
+
+function fixUsername(str) {
+    return str.trim().toLowerCase();
+}
+
+
+document.querySelector('.b-5')
+        .addEventListener('click', () => {
+            getUsername2(fixUsername);
+        });
+
+function getUsername2(fixFunc) {
+    const username = document.querySelector('.i-5').value;
+    console.log(fixFunc(username));
+}
+
+
+
+
+// asynchronous "callback" functions
+
+            // async function pageLoader(callback) {
+            //     const data = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+            //     callback(data);
+            // }
+
+function pageLoader(callback) {
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then(response => response.json())
+        .then(json => callback(json));
+}
+
+function getAJAX(data) {
+    console.log('Request sent');
+    console.log('Server response');
+    console.log(data);
+}
+
+pageLoader(getAJAX);
+
+
+
+
+// "callback" hell
+
+function pageLoader2() {
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then(response => response.json())
+        .then(json => {
+            console.log('Request sent');
+            console.log('Server response');
+            console.log(json);
+            fetch('https://jsonplaceholder.typicode.com/users/' + json.userId)
+                .then(response => response.json())
+                .then(json => {
+                    console.log('Request sent');
+                    console.log('Server response');
+                    console.log(json);
+                })
+        });
+}
+
+pageLoader2();
+
+function pageLoader3(url, callback) {
+    fetch(url)
+        .then(response => response.json())
+        .then(json => callback(json));
+}
+
+function getAJAX3(data) {
+    console.log('Request sent');
+    console.log('Server response');
+    console.log(data);
+    pageLoader3('https://jsonplaceholder.typicode.com/users/' + data.userId, showUser);
+}
+
+function showUser(user) {
+    console.log(user);
+}
+
+pageLoader3('https://jsonplaceholder.typicode.com/todos/1', getAJAX3);
+
+
+</script>
